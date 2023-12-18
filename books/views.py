@@ -163,7 +163,9 @@ def books_api(request, book_pk=None):
 
         if book:
             book.delete()
-            return JsonResponse({"message": "The book was successfully deleted"}, status=204)
+            return JsonResponse(
+                {"message": "The book was successfully deleted"}, status=204
+            )
         else:
             return JsonResponse({"message": "Error deleting the book"}, status=500)
 
