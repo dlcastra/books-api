@@ -23,15 +23,18 @@ def authors_api(request, authors_pk=None):
                 status=200,
             )
         else:
-            author = Author.objects.get(id=authors_pk)
-            return JsonResponse(
-                {
-                    "id": author.id,
-                    "name": author.name,
-                    "surname": author.surname,
-                    "birth_date": author.birth_date,
-                }
-            )
+            try:
+                author = Author.objects.get(id=authors_pk)
+                return JsonResponse(
+                    {
+                        "id": author.id,
+                        "name": author.name,
+                        "surname": author.surname,
+                        "birth_date": author.birth_date,
+                    }
+                )
+            except Author.DoesNotExist:
+                return JsonResponse({"message": "Author not found"}, status=404)
     else:
         return JsonResponse({"message": "Incorrect method"}, status=405)
 
@@ -95,7 +98,9 @@ def books_api(request, book_pk=None):
         except Author.DoesNotExist:
             return JsonResponse({"message": "Author not found"}, status=404)
 
-        book = Book.objects.create(name=name, author=author, genre=genre, date_release=date_release)
+        book = Book.objects.create(
+            name=name, author=author, genre=genre, date_release=date_release
+        )
         return JsonResponse(
             {
                 "id": book.id,
@@ -161,7 +166,9 @@ def books_api(request, book_pk=None):
 
         if book:
             book.delete()
-            return JsonResponse({"message": "The book was successfully deleted"}, status=204)
+            return JsonResponse(
+                {"message": "The book was successfully deleted"}, status=204
+            )
         else:
             return JsonResponse({"message": "Error deleting the book"}, status=500)
 
