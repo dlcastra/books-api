@@ -44,9 +44,7 @@ class Migration(migrations.Migration):
                 ("date_release", models.DateField()),
                 (
                     "author",
-                    models.ForeignKey(
-                        on_delete=django.db.models.deletion.CASCADE, to="books.author"
-                    ),
+                    models.ForeignKey(on_delete=django.db.models.deletion.CASCADE, to="books.author"),
                 ),
             ],
         ),

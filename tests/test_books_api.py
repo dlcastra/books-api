@@ -16,15 +16,9 @@ def sample_author():
 @pytest.mark.django_db
 def test_api_books_get(client: Client):
     author1 = Author.objects.create(name="John", surname="Doe", birth_date="1990-01-01")
-    author2 = Author.objects.create(
-        name="Jane", surname="Does", birth_date="1995-05-05"
-    )
-    book1 = Book.objects.create(
-        name="Book1", author=author1, genre="fantasy", date_release="1990-01-01"
-    )
-    book2 = Book.objects.create(
-        name="Book2", author=author2, genre="fantasy", date_release="1990-02-02"
-    )
+    author2 = Author.objects.create(name="Jane", surname="Does", birth_date="1995-05-05")
+    book1 = Book.objects.create(name="Book1", author=author1, genre="fantasy", date_release="1990-01-01")
+    book2 = Book.objects.create(name="Book2", author=author2, genre="fantasy", date_release="1990-02-02")
 
     response = client.get(reverse("books_api"))
     response_with_pk = client.get(reverse("books_api", kwargs={"book_pk": book1.id}))
@@ -34,10 +28,7 @@ def test_api_books_get(client: Client):
     assert response_with_pk.status_code == 200
 
     # Check data
-    assert (
-        response_with_pk.json()["id"] == book1.id
-        and response_with_pk.json()["id"] != book2.id
-    )
+    assert response_with_pk.json()["id"] == book1.id and response_with_pk.json()["id"] != book2.id
     assert response_with_pk.json()["name"] == book1.name
     assert response_with_pk.json()["author"] == {
         "id": book1.author.id,
@@ -57,9 +48,7 @@ def test_api_books_post(client: Client, sample_author):
         "date_release": "2023-06-30",
     }
 
-    response = client.post(
-        reverse("books_api"), data=json.dumps(data), content_type="application/json"
-    )
+    response = client.post(reverse("books_api"), data=json.dumps(data), content_type="application/json")
 
     # Check status code
     assert response.status_code == 200
@@ -95,9 +84,7 @@ def test_api_books_update(client: Client, sample_author):
     }
 
     url = reverse("books_api", kwargs={"book_pk": book.id})
-    response = client.put(
-        url, data=json.dumps(put_data), content_type="application/json"
-    )
+    response = client.put(url, data=json.dumps(put_data), content_type="application/json")
 
     # Check status code
     assert response.status_code == 200
@@ -105,9 +92,7 @@ def test_api_books_update(client: Client, sample_author):
 
     # Check data
     date_format = "%Y-%m-%d"
-    expected_date_release = datetime.strptime(
-        put_data["date_release"], date_format
-    ).date()
+    expected_date_release = datetime.strptime(put_data["date_release"], date_format).date()
     updated_book = Book.objects.get(id=book.id)
     assert updated_book.name == put_data["name"]
     assert updated_book.author == sample_author

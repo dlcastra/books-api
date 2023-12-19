@@ -15,9 +15,7 @@ class Command(BaseCommand):
     def handle(self, *args, **options):
         number = options["number"]
         if number < 1:
-            self.stdout.write(
-                self.style.ERROR("The number to be generated must be greater than 0")
-            )
+            self.stdout.write(self.style.ERROR("The number to be generated must be greater than 0"))
 
         for i in range(number):
             author = Author.objects.create(
@@ -27,8 +25,5 @@ class Command(BaseCommand):
             )
 
             self.stdout.write(
-                self.style.SUCCESS(
-                    "The teacher has been successfully added to the database, his id: '%s'"
-                    % author
-                )
+                self.style.SUCCESS("The teacher has been successfully added to the database, his id: '%s'" % author)
             )
