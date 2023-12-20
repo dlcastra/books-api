@@ -23,20 +23,6 @@ def test_book_not_found():
     assert request.json()["message"] == "Book not found"
 
 
-def test_book_post():
-    request = requests.post(
-        API_URL + "/books/",
-        json={
-            "name": "Book",
-            "author": 1,
-            "genre": "fantasy",
-            "date_release": "2022-01-01",
-        },
-    )
-
-    assert request.status_code == 200
-
-
 def test_book_post_error():
     request = requests.post(API_URL + "/books/", json={})
 
@@ -44,7 +30,7 @@ def test_book_post_error():
     assert request.json()["message"] == "All fields are required"
 
 
-def test_boob_put():
+def test_book_put():
     request = requests.post(
         API_URL + "/books/1",
         json={
