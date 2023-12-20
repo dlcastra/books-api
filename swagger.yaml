@@ -1,0 +1,212 @@
+openapi: 3.0.0
+info:
+  title: BooksAPI
+  version: 1.0.0
+paths:
+  /authors:
+    get:
+      summary: Get a list of authors
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: Bella
+                  surname: Smith
+                  birth_date: "1990-01-01"
+                - id: 2
+                  name: John
+                  surname: Smith
+                  birth_date: "1985-03-15"
+        '405':
+          description: Incorrect method
+        '500':
+          description: Internal Server Error
+
+  /authors/{authors_pk}:
+    get:
+      summary: Get author by author id
+      parameters:
+        - name: authors_pk
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: Bella
+                  surname: Smith
+                  birth_date: "1990-01-01"
+        '404':
+          description: Author not found
+
+        '405':
+          description: Incorrect method
+
+  /books:
+    get:
+      summary: Get a list of books
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: ExampleBook
+                  author:
+                    id: 1
+                    name: Bella
+                    surname: Smith
+                  genre: ExampleGenre
+                  date_release: 1990-01-01
+                - id: 2
+                  name: ExampleBook2
+                  author:
+                    id: 2
+                    name: John
+                    surname: Smith
+                  genre: ExampleGenre
+                  date_release: 1990-02-02
+        '405':
+          description: Incorrect method
+        '500':
+          description: Internal Server Error
+    post:
+      summary: Create new book
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: BookName
+              author: 1
+              genre: BookGenre
+              date_release: "2022-02-02"
+      responses:
+        '201':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                name: BookName
+                author: Author id
+                genre: BookGenre
+                date_release: 2022-02-02
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Request body must be JSON or All fields are required"
+        '404':
+          description: Author not found
+          content:
+            application/json:
+              example:
+                message: "Author not found"
+
+  /books/{book_pk}:
+    get:
+      summary: Get book by book id
+      parameters:
+        - name: book_pk
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                - id: 1
+                  name: ExampleBook
+                  author:
+                    id: 1
+                    name: Bella
+                    surname: Smith
+                  genre: ExampleGenre
+                  date_release: 1990-01-01
+        '404':
+          description: Book not found
+
+        '405':
+          description: Incorrect method
+
+    put:
+      summary: Update an existing book
+      parameters:
+        - name: book_pk
+          in: path
+          required: true
+          schema:
+            type: integer
+      requestBody:
+        required: true
+        content:
+          application/json:
+            example:
+              name: ExampleBook
+              author: 1
+              genre: ExampleGenre
+              date_release: "2022-02-02"
+      responses:
+        '200':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                id: 1
+                name: UpdatedExampleBook
+                author: 2
+                genre: UpdatedExampleGenre
+                date_release: "2023-03-03"
+        '400':
+          description: Bad Request
+          content:
+            application/json:
+              example:
+                message: "Request body must be JSON"
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              example:
+                message: "Book not found"
+
+    delete:
+      summary: Delete a book by its id
+      parameters:
+        - name: book_pk
+          in: path
+          required: true
+          schema:
+            type: integer
+      responses:
+        '204':
+          description: A successful response
+          content:
+            application/json:
+              example:
+                message: "The book was successfully deleted"
+        '404':
+          description: Book not found
+          content:
+            application/json:
+              example:
+                message: "Book not found"
+        '500':
+          description: Internal Server Error
+          content:
+            application/json:
+              example:
+                message: "Error deleting the book"
