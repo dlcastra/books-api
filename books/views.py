@@ -1,86 +1,69 @@
 import json
 
 from django.http import JsonResponse
+from django.utils.decorators import method_decorator
+from django.views import View
+from django.views.decorators.cache import cache_page
 
 from books.models import Author, Book
 
 
-def authors_api(request, authors_pk=None):
-    if request.method == "GET":
+class AuthorsApiView(View):
+    @staticmethod
+    def get_authors_api_json(author):
+        return {
+            "id": author.id,
+            "name": author.name,
+            "surname": author.surname,
+            "birth_date": author.birth_date,
+        }
+
+    @method_decorator(cache_page(30 * 15))
+    def get(self, request, authors_pk=None):
         if authors_pk is None:
             authors = Author.objects.all()
-            return JsonResponse(
-                [
-                    {
-                        "id": a.id,
-                        "name": a.name,
-                        "surname": a.surname,
-                        "birth_date": a.birth_date,
-                    }
-                    for a in authors
-                ],
-                safe=False,
-                status=200,
-            )
+            json_data = [self.get_authors_api_json(author) for author in authors]
+            return JsonResponse(json_data, safe=False, status=200)
         else:
             try:
                 author = Author.objects.get(id=authors_pk)
-                return JsonResponse(
-                    {
-                        "id": author.id,
-                        "name": author.name,
-                        "surname": author.surname,
-                        "birth_date": author.birth_date,
-                    }
-                )
+                return JsonResponse(self.get_authors_api_json(author))
             except Author.DoesNotExist:
                 return JsonResponse({"message": "Author not found"}, status=404)
-    else:
+
+    def http_method_not_allowed(self, request, *args, **kwargs):
         return JsonResponse({"message": "Incorrect method"}, status=405)
 
 
-def books_api(request, book_pk=None):
-    if request.method == "GET":
+class BooksApiView(View):
+    @staticmethod
+    def get_books_api_json(book):
+        return {
+            "id": book.id,
+            "name": book.name,
+            "author": {
+                "id": book.author.id,
+                "name": book.author.name,
+                "surname": book.author.surname,
+            },
+            "genre": book.genre,
+            "date_release": book.date_release,
+        }
+
+    @method_decorator(cache_page(30 * 15))
+    def get(self, request, book_pk=None):
         if book_pk is None:
             books = Book.objects.all()
-            return JsonResponse(
-                [
-                    {
-                        "id": book.id,
-                        "name": book.name,
-                        "author": {
-                            "id": book.author.id,
-                            "name": book.author.name,
-                            "surname": book.author.surname,
-                        },
-                        "genre": book.genre,
-                        "date_release": book.date_release,
-                    }
-                    for book in books
-                ],
-                safe=False,
-                status=200,
-            )
+            json_data = [self.get_books_api_json(book) for book in books]
+            return JsonResponse(json_data, safe=False, status=200)
         else:
             try:
                 book = Book.objects.get(id=book_pk)
-                return JsonResponse(
-                    {
-                        "id": book.id,
-                        "name": book.name,
-                        "author": {
-                            "id": book.author.id,
-                            "name": book.author.name,
-                            "surname": book.author.surname,
-                        },
-                        "genre": book.genre,
-                        "date_release": book.date_release,
-                    }
-                )
+                return JsonResponse(self.get_books_api_json(book))
             except Book.DoesNotExist:
                 return JsonResponse({"message": "Book not found"}, status=404)
 
-    elif request.method == "POST":
+    def post(self, request):
         try:
             data = json.loads(request.body)
             name = data.get("name")
@@ -97,25 +80,12 @@ def books_api(request, book_pk=None):
             author = Author.objects.get(id=author_id)
         except Author.DoesNotExist:
             return JsonResponse({"message": "Author not found"}, status=404)
-
         book = Book.objects.create(
             name=name, author=author, genre=genre, date_release=date_release
         )
-        return JsonResponse(
-            {
-                "id": book.id,
-                "name": book.name,
-                "author": {
-                    "id": book.author.id,
-                    "name": book.author.name,
-                    "surname": book.author.surname,
-                },
-                "genre": book.genre,
-                "date_release": book.date_release,
-            }
-        )
+        return JsonResponse(self.get_books_api_json(book))
 
-    elif request.method == "PUT":
+    def put(self, request, book_pk):
         try:
             book = Book.objects.get(id=book_pk)
         except Book.DoesNotExist:
@@ -144,21 +114,10 @@ def books_api(request, book_pk=None):
             book.date_release = date_release
         book.save()
 
-        return JsonResponse(
-            {
-                "id": book.id,
-                "name": book.name,
-                "author": {
-                    "id": book.author.id,
-                    "name": book.author.name,
-                    "surname": book.author.surname,
-                },
-                "genre": book.genre,
-                "date_release": book.date_release,
-            }
-        )
+        return JsonResponse(self.get_books_api_json(book), safe=False, status=200)
 
-    elif request.method == "DELETE":
+    @staticmethod
+    def delete(request, book_pk):
         try:
             book = Book.objects.get(id=book_pk)
         except Book.DoesNotExist:
@@ -172,5 +131,5 @@ def books_api(request, book_pk=None):
         else:
             return JsonResponse({"message": "Error deleting the book"}, status=500)
 
-    else:
+    def http_method_not_allowed(self, request, *args, **kwargs):
         return JsonResponse({"message": "Method not allowed"}, status=405)
