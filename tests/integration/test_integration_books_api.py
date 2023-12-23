@@ -31,7 +31,7 @@ def test_book_post_error():
 
 
 def test_book_put():
-    request = requests.post(
+    request = requests.put(
         API_URL + "/books/1",
         json={
             "name": "Book",
