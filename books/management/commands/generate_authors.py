@@ -7,10 +7,10 @@ fake = Faker()
 
 
 class Command(BaseCommand):
-    help = "Add the specified number of teachers to the database"
+    help = "Add the specified number of authors to the database"
 
     def add_arguments(self, parser):
-        parser.add_argument("number", type=int, nargs="?", default=100)
+        parser.add_argument("number", type=int, nargs="?", default=10)
 
     def handle(self, *args, **options):
         number = options["number"]

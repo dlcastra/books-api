@@ -1,8 +1,8 @@
 import pytest
+from django.test import Client
 from django.urls import reverse
 
 from books.models import Author
-from django.test import Client
 
 
 @pytest.mark.django_db
